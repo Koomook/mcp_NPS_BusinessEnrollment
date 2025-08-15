@@ -19,12 +19,11 @@ class NPSAPIClient:
     """국민연금공단 API 클라이언트"""
     
     def __init__(self):
-        self.base_url = os.getenv("API_ENDPOINT")
+        # API endpoint는 하드코딩 (항상 동일한 주소)
+        self.base_url = "http://apis.data.go.kr/B552015/NpsBplcInfoInqireServiceV2"
         self.encoding_key = os.getenv("ENCODING_API_KEY")
         self.decoding_key = os.getenv("DECODING_API_KEY")
         
-        if not self.base_url:
-            raise ValueError("API_ENDPOINT not found in environment variables")
         if not self.encoding_key and not self.decoding_key:
             raise ValueError("API key not found in environment variables")
         

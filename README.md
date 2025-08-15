@@ -4,51 +4,73 @@
 
 ## 개요
 
-이 프로젝트는 [공공데이터포털](https://www.data.go.kr)에서 제공하는 국민연금공단의 사업장 정보조회 서비스를 MCP 서버로 구현한 것입니다. Claude Desktop 및 기타 MCP 호환 클라이언트에서 국민연금 가입 사업장 정보를 쉽게 조회할 수 있습니다.
+이 프로젝트는 공공데이터포털에서 제공하는 [국민연금공단의 사업장 정보조회 서비스](https://www.data.go.kr/data/3046071/openapi.do)를 MCP 서버로 구현한 것입니다. Claude Desktop 및 기타 MCP 호환 클라이언트에서 국민연금 가입 사업장 정보를 쉽게 조회할 수 있습니다.
 
-## 주요 기능
+## MCP Tools
 
-### 제공하는 MCP Tools
+1. **search_business** 
+  - 사업장 정보 조회
+  - 지역별, 사업장명, 사업자등록번호로 검색
+  - 페이지네이션 지원
 
-1. **search_business** - 사업장 정보 조회
-   - 지역별, 사업장명, 사업자등록번호로 검색
-   - 페이지네이션 지원
+2. **get_business_detail** 
+  - 사업장 상세정보 조회
+  - 업종코드, 가입자수, 당월고지금액 등 상세정보
 
-2. **get_business_detail** - 사업장 상세정보 조회
-   - 업종코드, 가입자수, 당월고지금액 등 상세정보
+3. **get_period_status** 
+  - 기간별 현황 정보 조회
+  - 월별 취득자/상실자 현황
 
-3. **get_period_status** - 기간별 현황 정보 조회
-   - 월별 취득자/상실자 현황
+## MCP 클라이언트에 빠른 설치
 
-## 설치
+### Claude Desktop
 
-### 방법 1: PyPI에서 설치 (권장) ✨
+**가장 간단한 방법 - PyPI 패키지 사용:**
 
-이제 PyPI에서 직접 설치할 수 있습니다!
+1. Claude Desktop 설정 파일 열기:
+   - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+   - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+
+2. 다음 설정 추가:
+```json
+{
+  "mcpServers": {
+    "nps-business": {
+      "command": "uvx",
+      "args": ["mcp-nps-business-enrollment"],
+      "env": {
+        "ENCODING_API_KEY": "your_encoded_api_key",
+        "DECODING_API_KEY": "your_decoded_api_key"
+      }
+    }
+  }
+}
+```
+
+3. Claude Desktop 재시작
+
+### Claude Code
+
+```bash
+claude mcp add nps-business \
+  --env ENCODING_API_KEY="your_encoded_api_key" \
+  --env DECODING_API_KEY="your_decoded_api_key" \
+  -- uvx mcp-nps-business-enrollment
+```
+
+## 개발자용 설치
+
+### PyPI에서 설치
 
 ```bash
 # pip 사용
 pip install mcp-nps-business-enrollment
 
-# 또는 uv 사용 (더 빠름)
+# 또는 uv 사용 (권장)
 uv pip install mcp-nps-business-enrollment
 ```
 
-패키지 페이지: https://pypi.org/project/mcp-nps-business-enrollment/
-
-### 방법 2: GitHub에서 직접 설치
-
-```bash
-# 최신 개발 버전 설치
-pip install git+https://github.com/yourusername/mcp-nps-business-enrollment.git
-
-# 또는 uv 사용
-uv pip install git+https://github.com/yourusername/mcp-nps-business-enrollment.git
-```
-
-### 방법 3: 개발 환경 설정
-
-개발에 참여하거나 수정하려면:
+### 개발 환경 설정
 
 ```bash
 # 프로젝트 클론
@@ -60,6 +82,9 @@ uv sync
 
 # 개발 모드로 설치
 uv pip install -e .
+
+# MCP 서버로 테스트
+uv run mcp-nps-business-enrollment
 ```
 
 ## 환경 설정
@@ -68,14 +93,11 @@ uv pip install -e .
 
 [공공데이터포털](https://www.data.go.kr)에서 "국민연금 가입 사업장 내역" API 활용 신청 후 인증키를 발급받습니다.
 
-### 2. 환경변수 설정
+### 2. 환경변수 설정 (개발용)
 
-`.env` 파일을 생성하고 다음 내용을 입력합니다:
+개발 환경에서 테스트할 때는 `.env` 파일을 생성하고 다음 내용을 입력합니다:
 
 ```env
-# API 엔드포인트
-API_ENDPOINT="https://apis.data.go.kr/B552015/NpsBplcInfoInqireServiceV2"
-
 # URL 인코딩된 API 키 (브라우저에서 사용)
 ENCODING_API_KEY="your_url_encoded_api_key_here"
 
@@ -83,121 +105,9 @@ ENCODING_API_KEY="your_url_encoded_api_key_here"
 DECODING_API_KEY="your_decoded_api_key_here"
 ```
 
-## Claude Desktop 설정
+**참고:** API endpoint는 자동으로 설정되므로 별도 설정이 필요 없습니다.
 
-### 1. PyPI 패키지 사용 (가장 간단) 🚀
 
-이제 PyPI에서 설치한 패키지를 바로 사용할 수 있습니다!
-
-```bash
-# 1단계: 패키지 설치 (이미 설치했다면 생략)
-pip install mcp-nps-business-enrollment
-
-# 2단계: MCP 서버로 등록
-npx @modelcontextprotocol/create-typescript@latest add-server nps-business --command "mcp-nps-server"
-```
-
-### 2. 개발 버전 설치
-
-로컬 개발 버전을 사용하려면:
-
-```bash
-# npx를 사용한 한 줄 설치
-npx @modelcontextprotocol/create-typescript@latest add-server nps-business --python-path $(which python) --script-path $(pwd)/src/mcp_nps_business_enrollment/server.py
-
-# 또는 uv를 사용한 설치
-uv run mcp install src/mcp_nps_business_enrollment/server.py
-```
-
-### 3. 수동 설정 (대체 방법)
-
-Claude Desktop의 설정 파일에 직접 추가:
-
-**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
-
-```json
-{
-  "mcpServers": {
-    "nps-business": {
-      "command": "uv",
-      "args": ["run", "mcp-nps-server"],
-      "env": {
-        "API_ENDPOINT": "https://apis.data.go.kr/B552015/NpsBplcInfoInqireServiceV2",
-        "ENCODING_API_KEY": "your_encoded_key",
-        "DECODING_API_KEY": "your_decoded_key"
-      }
-    }
-  }
-}
-```
-
-## Claude Code 설정
-
-### 1. PyPI 패키지 사용 (가장 간단) 🚀
-
-```bash
-# 1단계: 패키지 설치 (이미 설치했다면 생략)
-pip install mcp-nps-business-enrollment
-
-# 2단계: Claude Code에 MCP 서버 등록
-# User scope (모든 프로젝트에서 사용)
-claude mcp add nps-business -s user -- mcp-nps-server
-
-# 또는 Project scope (현재 프로젝트에서만 사용)
-claude mcp add nps-business -s project -- mcp-nps-server
-```
-
-### 2. 개발 버전 사용
-
-로컬 개발 버전을 사용하려면:
-
-```bash
-# User scope로 설치
-claude mcp add nps-business -s user -- uv run --directory $(pwd) mcp-nps-server
-
-# 또는 Project scope로 설치
-claude mcp add nps-business -s project -- uv run --directory $(pwd) mcp-nps-server
-```
-
-설치 후 Claude Code를 재시작하면 MCP 서버가 자동으로 연결됩니다.
-
-### 3. MCP 서버 관리 명령어
-
-```bash
-# 설치된 MCP 서버 목록 확인
-claude mcp list
-
-# MCP 서버 제거
-claude mcp remove nps-business
-
-# MCP 서버 테스트
-claude mcp get nps-business
-```
-
-### 4. 수동 설정 (대체 방법)
-
-Claude Code의 설정 파일에 직접 추가:
-
-**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
-**Linux/WSL**: `~/.claude.json`
-
-```json
-{
-  "mcpServers": {
-    "nps-business": {
-      "command": "uv",
-      "args": ["run", "mcp-nps-server"],
-      "env": {
-        "API_ENDPOINT": "https://apis.data.go.kr/B552015/NpsBplcInfoInqireServiceV2",
-        "ENCODING_API_KEY": "your_encoded_key",
-        "DECODING_API_KEY": "your_decoded_key"
-      }
-    }
-  }
-}
-```
 
 ## 사용 예시
 
@@ -277,6 +187,6 @@ MIT License - 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.
 
 ## 참고자료
 
-- [국민연금공단 OpenAPI 활용가이드](https://www.data.go.kr)
+- [국민연금공단 OpenAPI 활용가이드](https://www.data.go.kr/data/3046071/openapi.do)
 - [MCP (Model Context Protocol)](https://modelcontextprotocol.io)
 - [MCP Python SDK](https://github.com/modelcontextprotocol/python-sdk)
