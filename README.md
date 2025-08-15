@@ -22,13 +22,33 @@
 
 ## 설치
 
-### pip를 사용한 설치
+### 방법 1: PyPI에서 설치 (권장) ✨
+
+이제 PyPI에서 직접 설치할 수 있습니다!
 
 ```bash
+# pip 사용
 pip install mcp-nps-business-enrollment
+
+# 또는 uv 사용 (더 빠름)
+uv pip install mcp-nps-business-enrollment
 ```
 
-### 개발 환경 설정 (uv 사용)
+패키지 페이지: https://pypi.org/project/mcp-nps-business-enrollment/
+
+### 방법 2: GitHub에서 직접 설치
+
+```bash
+# 최신 개발 버전 설치
+pip install git+https://github.com/yourusername/mcp-nps-business-enrollment.git
+
+# 또는 uv 사용
+uv pip install git+https://github.com/yourusername/mcp-nps-business-enrollment.git
+```
+
+### 방법 3: 개발 환경 설정
+
+개발에 참여하거나 수정하려면:
 
 ```bash
 # 프로젝트 클론
@@ -37,6 +57,9 @@ cd mcp-nps-business-enrollment
 
 # uv를 사용한 개발 환경 설정
 uv sync
+
+# 개발 모드로 설치
+uv pip install -e .
 ```
 
 ## 환경 설정
@@ -62,7 +85,21 @@ DECODING_API_KEY="your_decoded_api_key_here"
 
 ## Claude Desktop 설정
 
-### 1. 자동 설치 (권장)
+### 1. PyPI 패키지 사용 (가장 간단) 🚀
+
+이제 PyPI에서 설치한 패키지를 바로 사용할 수 있습니다!
+
+```bash
+# 1단계: 패키지 설치 (이미 설치했다면 생략)
+pip install mcp-nps-business-enrollment
+
+# 2단계: MCP 서버로 등록
+npx @modelcontextprotocol/create-typescript@latest add-server nps-business --command "mcp-nps-server"
+```
+
+### 2. 개발 버전 설치
+
+로컬 개발 버전을 사용하려면:
 
 ```bash
 # npx를 사용한 한 줄 설치
@@ -70,12 +107,6 @@ npx @modelcontextprotocol/create-typescript@latest add-server nps-business --pyt
 
 # 또는 uv를 사용한 설치
 uv run mcp install src/mcp_nps_business_enrollment/server.py
-```
-
-### 2. 개발 모드 실행
-
-```bash
-uv run mcp dev src/mcp_nps_business_enrollment/server.py
 ```
 
 ### 3. 수동 설정 (대체 방법)
@@ -103,21 +134,35 @@ Claude Desktop의 설정 파일에 직접 추가:
 
 ## Claude Code 설정
 
-### 1. Claude Code 명령어로 설치 (권장)
-
-프로젝트 디렉토리에서 다음 명령어를 실행합니다:
+### 1. PyPI 패키지 사용 (가장 간단) 🚀
 
 ```bash
-# User scope로 설치 (모든 프로젝트에서 사용 가능)
+# 1단계: 패키지 설치 (이미 설치했다면 생략)
+pip install mcp-nps-business-enrollment
+
+# 2단계: Claude Code에 MCP 서버 등록
+# User scope (모든 프로젝트에서 사용)
+claude mcp add nps-business -s user -- mcp-nps-server
+
+# 또는 Project scope (현재 프로젝트에서만 사용)
+claude mcp add nps-business -s project -- mcp-nps-server
+```
+
+### 2. 개발 버전 사용
+
+로컬 개발 버전을 사용하려면:
+
+```bash
+# User scope로 설치
 claude mcp add nps-business -s user -- uv run --directory $(pwd) mcp-nps-server
 
-# 또는 Project scope로 설치 (현재 프로젝트에서만 사용)
+# 또는 Project scope로 설치
 claude mcp add nps-business -s project -- uv run --directory $(pwd) mcp-nps-server
 ```
 
 설치 후 Claude Code를 재시작하면 MCP 서버가 자동으로 연결됩니다.
 
-### 2. MCP 서버 관리 명령어
+### 3. MCP 서버 관리 명령어
 
 ```bash
 # 설치된 MCP 서버 목록 확인
@@ -130,7 +175,7 @@ claude mcp remove nps-business
 claude mcp get nps-business
 ```
 
-### 3. 수동 설정 (대체 방법)
+### 4. 수동 설정 (대체 방법)
 
 Claude Code의 설정 파일에 직접 추가:
 

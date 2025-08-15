@@ -6,6 +6,9 @@ readme = "README.md"
 authors = [
     { name = "Dave Goobong Jeong", email = "bongbonggg97@gmail.com" }
 ]
+homepage = "https://github.com/yourusername/mcp-nps-business-enrollment"
+repository = "https://github.com/yourusername/mcp-nps-business-enrollment"
+documentation = "https://github.com/yourusername/mcp-nps-business-enrollment#readme"
 requires-python = ">=3.10"
 license = {text = "MIT"}
 keywords = ["mcp", "nps", "korea", "pension", "api", "business", "enrollment"]

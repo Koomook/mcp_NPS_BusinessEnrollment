@@ -2,7 +2,6 @@
 
 import os
 import json
-import ssl
 from typing import Optional, Dict, Any, List
 from urllib.parse import urlencode, quote
 import httpx
@@ -29,16 +28,11 @@ class NPSAPIClient:
         if not self.encoding_key and not self.decoding_key:
             raise ValueError("API key not found in environment variables")
         
-        # SSL 컨텍스트 설정 (TLS 1.2 강제)
-        ssl_context = ssl.create_default_context()
-        ssl_context.check_hostname = False
-        ssl_context.verify_mode = ssl.CERT_NONE
-        ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
-        ssl_context.maximum_version = ssl.TLSVersion.TLSv1_2
-        
+        # HTTP 연결 사용 (공공데이터 API는 HTTP만 지원)
+        # SSL 검증 비활성화 - HTTP 연결이므로 필요 없음
         self.client = httpx.AsyncClient(
-            timeout=30.0, 
-            verify=ssl_context
+            timeout=30.0,
+            verify=False  # HTTP 연결에는 SSL 검증 불필요
         )
     
     async def __aenter__(self):

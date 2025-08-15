@@ -1,0 +1,16 @@
+include README.md
+include LICENSE
+include pyproject.toml
+recursive-include src *.py
+recursive-include tests *.py
+exclude .env
+exclude .env.local
+exclude *.pyc
+exclude __pycache__
+exclude .git*
+exclude .venv
+exclude .uv
+exclude *.egg-info
+prune .github
+prune docs
+prune prompts
