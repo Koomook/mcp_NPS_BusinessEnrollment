@@ -1,0 +1,15 @@
+프로젝트를 시작하자.
+  :한국 공공데이터포탈에서 제공하는 국민연금 가입 사업장 내역 API 를 mcp server 로 만들 것이다.
+
+  # 목표
+  국민연금 가입 사업장 내역 API를 활용할 수 있는 모든 방법을 mcp 로 구현하는 것이 프로젝트의
+  목표다.
+
+  # 스펙:
+  - python
+  - mcp server
+      - python sdk: https://github.com/modelcontextprotocol/python-sdk
+      - github mcp 를 이용해서 sdk 를 자세히 확인하고 구현하라
+  - uv 사용
+  - pip 배포 필요
+  - 국민연금 api 스펙은 @국민연금공단_오픈API활용가이드_국민연금 가입 사업장 내역_v2.0.md
