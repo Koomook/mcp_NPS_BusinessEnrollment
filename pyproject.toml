@@ -1,14 +1,11 @@
 [project]
 name = "mcp-nps-business-enrollment"
-version = "0.1.1"
+version = "0.1.2"
 description = "MCP server for Korea National Pension Service business enrollment API"
 readme = "README.md"
 authors = [
     { name = "Dave Goobong Jeong", email = "bongbonggg97@gmail.com" }
 ]
-homepage = "https://github.com/yourusername/mcp-nps-business-enrollment"
-repository = "https://github.com/yourusername/mcp-nps-business-enrollment"
-documentation = "https://github.com/yourusername/mcp-nps-business-enrollment#readme"
 requires-python = ">=3.10"
 license = {text = "MIT"}
 keywords = ["mcp", "nps", "korea", "pension", "api", "business", "enrollment"]
@@ -28,6 +25,12 @@ dependencies = [
     "pydantic>=2.11.7",
     "python-dotenv>=1.1.1",
 ]
+
+[project.urls]
+Homepage = "https://github.com/Koomook/mcp_NPS_BusinessEnrollment"
+Repository = "https://github.com/Koomook/mcp_NPS_BusinessEnrollment"
+Documentation = "https://github.com/Koomook/mcp_NPS_BusinessEnrollment#readme"
+"Bug Tracker" = "https://github.com/Koomook/mcp_NPS_BusinessEnrollment/issues"
 
 [project.scripts]
 mcp-nps-business-enrollment = "mcp_nps_business_enrollment.server:main"

@@ -22,7 +22,7 @@ async def search_business(
     wkpl_nm: Optional[str] = None,
     bzowr_rgst_no: Optional[str] = None,
     page_no: int = 1,
-    num_of_rows: int = 10
+    num_of_rows: int = 100
 ) -> Dict[str, Any]:
     """
     사업장 정보를 조회합니다.
@@ -36,7 +36,7 @@ async def search_business(
         wkpl_nm: 사업장명
         bzowr_rgst_no: 사업자등록번호 (앞 6자리)
         page_no: 페이지 번호 (기본값: 1)
-        num_of_rows: 한 페이지 결과 수 (기본값: 10)
+        num_of_rows: 한 페이지 결과 수 (기본값: 100, 최대: 100)
     
     Returns:
         Dictionary containing:
@@ -97,6 +97,7 @@ async def get_business_detail(
         - Registration/withdrawal dates
         - Number of subscribers
         - Monthly billing amount
+        - Estimated average monthly salary (추정값)
     """
     async with NPSAPIClient() as client:
         try:
@@ -107,6 +108,18 @@ async def get_business_detail(
             )
             
             if result['items']:
+                for item in result['items']:
+                    if 'jnngp_cnt' in item and 'crrmm_ntc_amt' in item:
+                        try:
+                            subscribers = int(item['jnngp_cnt'])
+                            monthly_amount = int(item['crrmm_ntc_amt'])
+                            if subscribers > 0 and monthly_amount > 0:
+                                estimated_salary = monthly_amount / subscribers / 0.09
+                                item['estimated_avg_monthly_salary'] = round(estimated_salary)
+                                item['estimated_avg_monthly_salary_note'] = '추정값 (당월고지금액 기준)'
+                        except (ValueError, TypeError, ZeroDivisionError):
+                            pass
+                
                 result['message'] = f"Successfully retrieved details for business #{seq}"
             else:
                 result['message'] = f"No details found for business #{seq}"
@@ -144,6 +157,7 @@ async def get_period_status(
         Dictionary containing:
         - nw_acqzr_cnt: Number of new acquisitions in the period
         - lss_jnngp_cnt: Number of losses/withdrawals in the period
+        - estimated_avg_monthly_salary: Estimated average monthly salary (추정값)
     """
     async with NPSAPIClient() as client:
         try:
@@ -155,6 +169,25 @@ async def get_period_status(
             )
             
             if result['items']:
+                detail_result = await client.get_business_detail(
+                    seq=seq,
+                    page_no=1,
+                    num_of_rows=1
+                )
+                
+                if detail_result['items']:
+                    item = detail_result['items'][0]
+                    if 'jnngp_cnt' in item and 'crrmm_ntc_amt' in item:
+                        try:
+                            subscribers = int(item['jnngp_cnt'])
+                            monthly_amount = int(item['crrmm_ntc_amt'])
+                            if subscribers > 0 and monthly_amount > 0:
+                                estimated_salary = monthly_amount / subscribers / 0.09
+                                result['estimated_avg_monthly_salary'] = round(estimated_salary)
+                                result['estimated_avg_monthly_salary_note'] = '추정값 (당월고지금액 기준)'
+                        except (ValueError, TypeError, ZeroDivisionError):
+                            pass
+                
                 period_str = f" for {data_crt_ym}" if data_crt_ym else ""
                 result['message'] = f"Successfully retrieved period status for business #{seq}{period_str}"
             else:
@@ -182,10 +215,11 @@ def main():
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     
-    # API 키 확인
-    if not os.getenv("ENCODING_API_KEY") and not os.getenv("DECODING_API_KEY"):
+    # API 키 확인 (필수)
+    api_key = os.getenv("API_KEY")
+    if not api_key:
         logging.error("API key not found in environment variables")
-        logging.error("Please set ENCODING_API_KEY or DECODING_API_KEY in .env file")
+        logging.error("Please set API_KEY environment variable")
         sys.exit(1)
     
     # MCP 서버 실행

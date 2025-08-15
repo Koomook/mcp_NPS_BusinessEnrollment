@@ -1,16 +1,12 @@
 """API client for National Pension Service."""
 
 import os
-import json
-from typing import Optional, Dict, Any, List
-from urllib.parse import urlencode, quote
+from typing import Any, Dict, Optional
+
 import httpx
 from dotenv import load_dotenv
-from .models import (
-    BusinessItem, 
-    BusinessDetailItem, 
-    PeriodStatusItem
-)
+
+from .models import BusinessDetailItem, BusinessItem, PeriodStatusItem
 
 load_dotenv()
 
@@ -21,11 +17,12 @@ class NPSAPIClient:
     def __init__(self):
         # API endpoint는 하드코딩 (항상 동일한 주소)
         self.base_url = "http://apis.data.go.kr/B552015/NpsBplcInfoInqireServiceV2"
-        self.encoding_key = os.getenv("ENCODING_API_KEY")
-        self.decoding_key = os.getenv("DECODING_API_KEY")
         
-        if not self.encoding_key and not self.decoding_key:
-            raise ValueError("API key not found in environment variables")
+        # 환경변수에서 API 키 가져오기 (필수)
+        self.api_key = os.getenv("API_KEY")
+        
+        if not self.api_key:
+            raise ValueError("API key not found in environment variables. Please set API_KEY environment variable.")
         
         # HTTP 연결 사용 (공공데이터 API는 HTTP만 지원)
         # SSL 검증 비활성화 - HTTP 연결이므로 필요 없음
@@ -40,11 +37,9 @@ class NPSAPIClient:
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self.client.aclose()
     
-    def _get_api_key(self, use_encoding: bool = False) -> str:
-        """API 키 선택"""
-        if use_encoding and self.encoding_key:
-            return self.encoding_key
-        return self.decoding_key or self.encoding_key
+    def _get_api_key(self) -> str:
+        """API 키 반환"""
+        return self.api_key
     
     def _to_camel_case(self, snake_str: str) -> str:
         """스네이크 케이스를 카멜 케이스로 변환"""
@@ -104,9 +99,9 @@ class NPSAPIClient:
         wkpl_nm: Optional[str] = None,
         bzowr_rgst_no: Optional[str] = None,
         page_no: int = 1,
-        num_of_rows: int = 10
+        num_of_rows: int = 100
     ) -> Dict[str, Any]:
-        """사업장 정보조회"""
+        """사업장 정보조회 - 기본 100개 반환 (최대 100개)"""
         params = {
             'ldong_addr_mgpl_dg_cd': ldong_addr_mgpl_dg_cd,
             'ldong_addr_mgpl_sggu_cd': ldong_addr_mgpl_sggu_cd,

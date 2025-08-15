@@ -77,7 +77,7 @@ uv run twine upload dist/* -u __token__ -p <pypi-token>
 2. **API Client (`api_client.py`)**: Handles communication with Korean government API
    - Manages SSL/TLS issues (Korean government API uses HTTP)
    - Converts between snake_case and camelCase parameters
-   - Handles both encoded and decoded API keys
+   - Requires API key to be set via environment variable
 
 3. **Data Models (`models.py`)**: Pydantic models for request/response validation
    - Uses field aliases for camelCase conversion
@@ -86,7 +86,7 @@ uv run twine upload dist/* -u __token__ -p <pypi-token>
 ### Key Implementation Details
 
 - **HTTP vs HTTPS**: The Korean government API only supports HTTP, not HTTPS. The API client is configured with `verify=False` to handle this.
-- **API Key Encoding**: The API requires URL-encoded keys. The client automatically selects between `ENCODING_API_KEY` and `DECODING_API_KEY` from environment variables.
+- **API Key Handling**: The client requires environment variable `API_KEY` to be set (mandatory).
 - **Parameter Naming**: The API uses camelCase, but the Python code uses snake_case. The client automatically converts between them.
 
 ## Known Issues and Workarounds
@@ -120,9 +120,13 @@ To understand and extend this MCP server implementation:
 
 Required environment variables in `.env`:
 ```
-API_ENDPOINT="http://apis.data.go.kr/B552015/NpsBplcInfoInqireServiceV2"
-ENCODING_API_KEY="<url-encoded-api-key>"
-DECODING_API_KEY="<decoded-api-key>"
+# API Key (required)
+API_KEY="<your-api-key>"
+```
+
+**Test API Key (for development/testing):**
+```
+API_KEY="cm+2VqVacqFCywI02FjjnrdNN2TeQS0FE+JRKoO2FuEXGGjHImnWNHBAHWlrtaadj3D+Y87e5bfn6th8q3Nzkw=="
 ```
 
 Get API keys from: https://www.data.go.kr (search for "국민연금 가입 사업장 내역")
@@ -134,6 +138,14 @@ Get API keys from: https://www.data.go.kr (search for "국민연금 가입 사�
 - **httpx**: Async HTTP client (NOT requests)
 - **pydantic**: Data validation and serialization
 - **python-dotenv**: Environment variable management
+
+## Version Control Best Practices
+
+**IMPORTANT: Commit changes to git after every significant modification**
+- Make atomic commits for each logical change
+- Write clear, descriptive commit messages
+- Commit before moving to the next feature or fix
+- Never leave uncommitted changes when switching tasks
 
 ## Publishing Updates
 

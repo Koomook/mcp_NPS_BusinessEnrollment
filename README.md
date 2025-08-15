@@ -2,6 +2,31 @@
 
 국민연금 가입 사업장 내역 API를 MCP(Model Context Protocol) 서버로 제공하는 Python 패키지입니다.
 
+## 주요 기능
+
+**기업 임직원 수 및 예상 평균 월급 조회**
+- 국민연금 가입자 수로 실제 임직원 규모 파악
+- 당월 고지금액 기반 예상 평균 월급 계산 (추정값)
+- 월별 입사/퇴사 현황 추적
+
+## 작동 원리
+
+```mermaid
+graph LR
+    A[Claude/MCP Client] --> B[MCP Server]
+    B --> C[국민연금공단 API]
+    C --> D[사업장 정보]
+    D --> B
+    B --> E[데이터 처리<br/>평균 월급 계산]
+    E --> A
+```
+
+1. **MCP 클라이언트** (Claude Desktop/Code)가 사용자 요청을 받음
+2. **MCP 서버**가 국민연금공단 OpenAPI를 호출
+3. 반환된 데이터에서 가입자수, 당월고지금액 추출
+4. 예상 평균 월급 계산: `당월고지금액 ÷ 가입자수 ÷ 0.09 (보험료율)`
+5. 결과를 사용자에게 반환
+
 ## 개요
 
 이 프로젝트는 공공데이터포털에서 제공하는 [국민연금공단의 사업장 정보조회 서비스](https://www.data.go.kr/data/3046071/openapi.do)를 MCP 서버로 구현한 것입니다. Claude Desktop 및 기타 MCP 호환 클라이언트에서 국민연금 가입 사업장 정보를 쉽게 조회할 수 있습니다.
@@ -23,6 +48,18 @@
 
 ## MCP 클라이언트에 빠른 설치
 
+### 테스트용 API 키
+
+다음 테스트용 API 키를 제공합니다. 아래 설치 명령어에서 바로 사용할 수 있습니다:
+```
+cm+2VqVacqFCywI02FjjnrdNN2TeQS0FE+JRKoO2FuEXGGjHImnWNHBAHWlrtaadj3D+Y87e5bfn6th8q3Nzkw==
+```
+
+⚠️ **중요 안내**: 
+- 이 테스트용 API 키는 **하루 총 10,000건**까지만 호출 가능합니다
+- 여러 사용자가 공유하므로 **언제든지 호출이 실패할 수 있습니다**
+- 안정적인 사용을 위해서는 [개인 API 키 발급](#1-api-키-발급)을 권장합니다
+
 ### Claude Desktop
 
 **가장 간단한 방법 - PyPI 패키지 사용:**
@@ -31,7 +68,7 @@
    - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
    - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
 
-2. 다음 설정 추가:
+2. 다음 설정 추가 (테스트용 API 키 포함):
 ```json
 {
   "mcpServers": {
@@ -39,8 +76,7 @@
       "command": "uvx",
       "args": ["mcp-nps-business-enrollment"],
       "env": {
-        "ENCODING_API_KEY": "your_encoded_api_key",
-        "DECODING_API_KEY": "your_decoded_api_key"
+        "API_KEY": "cm+2VqVacqFCywI02FjjnrdNN2TeQS0FE+JRKoO2FuEXGGjHImnWNHBAHWlrtaadj3D+Y87e5bfn6th8q3Nzkw=="
       }
     }
   }
@@ -52,57 +88,108 @@
 ### Claude Code
 
 ```bash
+# 테스트용 API 키로 설치
 claude mcp add nps-business \
-  --env ENCODING_API_KEY="your_encoded_api_key" \
-  --env DECODING_API_KEY="your_decoded_api_key" \
+  --env API_KEY="cm+2VqVacqFCywI02FjjnrdNN2TeQS0FE+JRKoO2FuEXGGjHImnWNHBAHWlrtaadj3D+Y87e5bfn6th8q3Nzkw==" \
   -- uvx mcp-nps-business-enrollment
+```
+
+### Codex CLI
+
+Codex CLI에서 MCP 서버를 사용하려면 `~/.codex/config.toml` 파일을 수정합니다:
+
+1. Codex CLI 설치 (필요한 경우):
+```bash
+npm install -g @openai/codex
+```
+
+2. 설정 파일 편집 `~/.codex/config.toml`:
+```toml
+# NPS Business Enrollment MCP Server 설정
+[mcp_servers.nps-business]
+command = "uvx"
+args = ["mcp-nps-business-enrollment"]
+env = { API_KEY = "cm+2VqVacqFCywI02FjjnrdNN2TeQS0FE+JRKoO2FuEXGGjHImnWNHBAHWlrtaadj3D+Y87e5bfn6th8q3Nzkw==" }
+```
+
+3. Codex 실행:
+```bash
+codex  # 프로젝트 디렉토리에서 실행
 ```
 
 ## 개발자용 설치
 
-### PyPI에서 설치
+### 로컬 개발 환경에서 MCP 클라이언트에 설치
+
+이 레포지토리를 클론하여 로컬 개발 버전을 MCP 클라이언트에 직접 연결할 수 있습니다.
+
+#### 1. 레포지토리 클론 및 설정
 
 ```bash
-# pip 사용
+# 레포지토리 클론
+git clone https://github.com/Koomook/mcp_NPS_BusinessEnrollment.git
+cd mcp_NPS_BusinessEnrollment
+
+# uv를 사용한 의존성 설치
+uv sync
+```
+
+#### 2. Claude Desktop에 로컬 개발 버전 연결
+
+Claude Desktop 설정 파일을 열어 다음과 같이 설정합니다:
+
+```json
+{
+  "mcpServers": {
+    "nps-business-dev": {
+      "command": "uv",
+      "args": ["run", "mcp-nps-business-enrollment"],
+      "cwd": "/path/to/mcp_NPS_BusinessEnrollment",
+      "env": {
+        "API_KEY": "cm+2VqVacqFCywI02FjjnrdNN2TeQS0FE+JRKoO2FuEXGGjHImnWNHBAHWlrtaadj3D+Y87e5bfn6th8q3Nzkw=="
+      }
+    }
+  }
+}
+```
+
+**참고:** `cwd`를 실제 클론한 디렉토리 경로로 변경하세요.
+
+#### 3. Claude Code에 로컬 개발 버전 연결
+
+```bash
+# 클론한 디렉토리에서 실행
+claude mcp add nps-business-dev \
+  --env API_KEY="cm+2VqVacqFCywI02FjjnrdNN2TeQS0FE+JRKoO2FuEXGGjHImnWNHBAHWlrtaadj3D+Y87e5bfn6th8q3Nzkw==" \
+  -- uv run --directory /path/to/mcp_NPS_BusinessEnrollment mcp-nps-business-enrollment
+```
+
+### PyPI 패키지로 개발
+
+```bash
+# PyPI에서 설치
 pip install mcp-nps-business-enrollment
 
 # 또는 uv 사용 (권장)
 uv pip install mcp-nps-business-enrollment
 ```
 
-### 개발 환경 설정
-
-```bash
-# 프로젝트 클론
-git clone https://github.com/yourusername/mcp-nps-business-enrollment.git
-cd mcp-nps-business-enrollment
-
-# uv를 사용한 개발 환경 설정
-uv sync
-
-# 개발 모드로 설치
-uv pip install -e .
-
-# MCP 서버로 테스트
-uv run mcp-nps-business-enrollment
-```
-
 ## 환경 설정
 
 ### 1. API 키 발급
 
-[공공데이터포털](https://www.data.go.kr)에서 "국민연금 가입 사업장 내역" API 활용 신청 후 인증키를 발급받습니다.
+공공데이터포털에서 제공하는 [국민연금공단의 사업장 정보조회 서비스](https://www.data.go.kr/data/3046071/openapi.do)에서 "국민연금 가입 사업장 내역" API 활용 신청 후 인증키를 발급받습니다.
 
 ### 2. 환경변수 설정 (개발용)
 
 개발 환경에서 테스트할 때는 `.env` 파일을 생성하고 다음 내용을 입력합니다:
 
 ```env
-# URL 인코딩된 API 키 (브라우저에서 사용)
-ENCODING_API_KEY="your_url_encoded_api_key_here"
+# API 키 (필수)
+API_KEY="your_api_key_here"
 
-# 디코딩된 API 키 (일반 사용)
-DECODING_API_KEY="your_decoded_api_key_here"
+# 테스트용 API 키 예시:
+# API_KEY="cm+2VqVacqFCywI02FjjnrdNN2TeQS0FE+JRKoO2FuEXGGjHImnWNHBAHWlrtaadj3D+Y87e5bfn6th8q3Nzkw=="
 ```
 
 **참고:** API endpoint는 자동으로 설정되므로 별도 설정이 필요 없습니다.
@@ -111,9 +198,12 @@ DECODING_API_KEY="your_decoded_api_key_here"
 
 ## 사용 예시
 
-### Claude Desktop에서 사용
+### MCP Client(Claude Desktop 등)에서 사용
 
 ```
+임직원 수 및 평균 월급 조회:
+"스페이스와이" 회사의 임직원 수와 예상 평균 월급을 알려줘
+
 사업장명으로 검색:
 "삼성전자"라는 이름이 포함된 사업장을 검색해줘
 
@@ -207,8 +297,6 @@ uv run pytest tests/
 - [ ] [공공데이터포털 CSV 파일](https://www.data.go.kr/data/15083277/fileData.do)을 활용한 완전한 데이터베이스 구축
   - 월별 CSV 파일 전체 다운로드 및 파싱
   - SQLite/PostgreSQL 등 로컬 DB에 데이터 저장
-  - 사업장별 고유 ID 생성으로 시계열 추적 가능
-  - API 제한 없는 빠른 조회 성능
   - 과거 전체 기간 데이터 분석 가능
 
 ## 기여하기
@@ -227,7 +315,7 @@ MIT License - 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.
 
 ## 문의
 
-문제가 있거나 제안사항이 있으시면 [Issues](https://github.com/yourusername/mcp-nps-business-enrollment/issues)에 등록해주세요.
+문제가 있거나 제안사항이 있으시면 [Issues](https://github.com/Koomook/mcp_NPS_BusinessEnrollment/issues)에 등록해주세요.
 
 ## 참고자료
 
