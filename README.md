@@ -1,5 +1,7 @@
 # MCP NPS Business Enrollment Server
 
+[![smithery badge](https://smithery.ai/badge/@Koomook/mcp_nps_businessenrollment)](https://smithery.ai/server/@Koomook/mcp_nps_businessenrollment)
+
 국민연금 가입 사업장 내역 API를 MCP(Model Context Protocol) 서버로 제공하는 Python 패키지입니다.
 
 ## 주요 기능
@@ -48,13 +50,22 @@ graph LR
 
 ## MCP 클라이언트에 빠른 설치
 
+### 설치 방법
+
+#### Claude Desktop에 Smithery로 자동 설치
+
+다음 명령어를 실행하여 [Smithery](https://smithery.ai)에 등록된 MCP 서버를 설치할 수 있습니다:
+
+```bash
+npx -y @smithery/cli install @Koomook/mcp_nps_businessenrollment --client claude
+```
+
 ### 테스트용 API 키
 
 다음 테스트용 API 키를 제공합니다. 아래 설치 명령어에서 바로 사용할 수 있습니다:
 ```
-cm+2VqVacqFCywI02FjjnrdNN2TeQS0FE+JRKoO2FuEXGGjHImnWNHBAHWlrtaadj3D+Y87e5bfn6th8q3Nzkw==
+cm+2VqVacqFCywI02FjjnrdNN2TeQS0FE+JRKoO2FuEXGGjHImnWNHBAHWlrtaadj3D+Y87e5bfn6th8q3Nzkw=="
 ```
-
 ⚠️ **중요 안내**: 
 - 이 테스트용 API 키는 **하루 총 10,000건**까지만 호출 가능합니다
 - 여러 사용자가 공유하므로 **언제든지 호출이 실패할 수 있습니다**
@@ -90,7 +101,7 @@ cm+2VqVacqFCywI02FjjnrdNN2TeQS0FE+JRKoO2FuEXGGjHImnWNHBAHWlrtaadj3D+Y87e5bfn6th8
 ```bash
 # 테스트용 API 키로 설치
 claude mcp add nps-business \
-  --env API_KEY="cm+2VqVacqFCywI02FjjnrdNN2TeQS0FE+JRKoO2FuEXGGjHImnWNHBAHWlrtaadj3D+Y87e5bfn6th8q3Nzkw==" \
+  --env API_KEY="cm+2VqVacqFCywI02FjjnrdNN2TeQS0FE+JRKoO2FuEXGGjHImnWNHBAHWlrtaadj3D+Y87e5bfn6th8q3Nzkw==" 
   -- uvx mcp-nps-business-enrollment
 ```
 
@@ -160,7 +171,7 @@ Claude Desktop 설정 파일을 열어 다음과 같이 설정합니다:
 ```bash
 # 클론한 디렉토리에서 실행
 claude mcp add nps-business-dev \
-  --env API_KEY="cm+2VqVacqFCywI02FjjnrdNN2TeQS0FE+JRKoO2FuEXGGjHImnWNHBAHWlrtaadj3D+Y87e5bfn6th8q3Nzkw==" \
+  --env API_KEY="cm+2VqVacqFCywI02FjjnrdNN2TeQS0FE+JRKoO2FuEXGGjHImnWNHBAHWlrtaadj3D+Y87e5bfn6th8q3Nzkw=="
   -- uv run --directory /path/to/mcp_NPS_BusinessEnrollment mcp-nps-business-enrollment
 ```
 
@@ -193,7 +204,6 @@ API_KEY="your_api_key_here"
 ```
 
 **참고:** API endpoint는 자동으로 설정되므로 별도 설정이 필요 없습니다.
-
 
 
 ## 사용 예시
