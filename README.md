@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/koomook-mcp-nps-businessenrollment-badge.png)](https://mseep.ai/app/koomook-mcp-nps-businessenrollment)
+
 # MCP NPS Business Enrollment Server
 
 [![smithery badge](https://smithery.ai/badge/@Koomook/mcp_nps_businessenrollment)](https://smithery.ai/server/@Koomook/mcp_nps_businessenrollment)
